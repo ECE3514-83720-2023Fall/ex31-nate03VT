@@ -37,7 +37,20 @@ int peek(ArrayType& a) {
 // restore heap property after insert
 template<typename ArrayType>
 void bubble_up(ArrayType& a, std::size_t index) {
-    //TO DO
+    bool sorted = false;
+    int cindex = 1;
+        while (!sorted && (cindex < index)) {
+            sorted = true;
+            for (int i = 0; i < index - cindex; i++) {
+
+                int nextindex = i + 1;
+                if (a[i] > a[nextindex]) {
+                    std::swap(a[i], a[nextindex]);
+                        sorted = false;
+                }
+            }
+            cindex++;
+        }
     
 }
 
@@ -45,14 +58,20 @@ void bubble_up(ArrayType& a, std::size_t index) {
 // need to call bubble_up to restore heap
 template<typename ArrayType>
 void insert(ArrayType& a, int item) {
-    //TO DO
+    a.push_back(item); 
+    bubble_up(a, a.size() - 1); 
 }
 
 // assumption -- have a semi-heap rooted at index
 // rebuild heap from this index
 template<typename ArrayType>
 void rebuild_min_heap(ArrayType& a, std::size_t index) {
-    //TO DO
+    std::size_t min_index = find_min_child(a, index);
+
+    if (min_index != 0 && a[min_index] < a[index]) {
+        std::swap(a[min_index], a[index]);
+        rebuild_min_heap(a, min_index);
+    }
 }
 
 // removes the min value
@@ -60,7 +79,14 @@ void rebuild_min_heap(ArrayType& a, std::size_t index) {
 // need to  rebuild heap from the top 
 template<typename ArrayType>
 void remove(ArrayType& a) {
-     //To Do
+    if (a.empty()) {
+        // when heap is empty
+        return;
+    }
+
+    std::swap(a[0], a[a.size() - 1]); 
+    a.pop_back(); 
+    rebuild_min_heap(a, 0); // Rebuild heap starting from the root
 }
 
 // make_min_heap -- takes array of values and
@@ -69,15 +95,27 @@ void remove(ArrayType& a) {
 // TODO
 template<typename ArrayType>
 void make_min_heap(ArrayType& a) {
-    //To Do
+    for (int i = (a.size() / 2) - 1; i >= 0; i--) {
+        rebuild_min_heap(a, i);
+    }
 }
 
 // check to see if the array is a valid heap
 template<typename ArrayType>
 bool check_min_heap(ArrayType& a) {
-    std::size_t index = (a.size() / 2) - 1;
-    for (std::size_t i = 0; i < a.size(); i++) {
-        if (find_min_child(a, i) != 0) return false;
+    for (std::size_t i = 0; i < a.size(); ++i) {
+        std::size_t left_child_index = 2 * i + 1;
+        std::size_t right_child_index = 2 * i + 2;
+
+        // Check left child
+        if (left_child_index < a.size() && a[left_child_index] < a[i]) {
+            return false;
+        }
+
+        // Check right child
+        if (right_child_index < a.size() && a[right_child_index] < a[i]) {
+            return false;
+        }
     }
     return true;
 }
